@@ -1,0 +1,78 @@
+### Load required packages
+install.packages(c("arules","e1071","rpart","HSAUR3"))
+library(arules)
+library(e1071)
+library(rpart)
+library(HSAUR3)
+
+### 1. Apriori & FP-Growth (support=3, confidence=50%)
+transactions <- list(
+  c("M","O","N","K","E","Y"),
+  c("D","O","N","K","E","Y"),
+  c("M","A","K","E"),
+  c("M","U","C","K","Y"),
+  c("C","O","O","K","I","E")
+)
+trans <- as(transactions, "transactions")
+
+rules_apriori <- apriori(trans, parameter=list(supp=0.3, conf=0.5))
+inspect(rules_apriori)
+
+frequent_items <- eclat(trans, parameter=list(supp=0.3))
+inspect(frequent_items)
+
+### 2. Max number of rules & frequent itemsets
+items <- c("M","O","N","K","E","Y","D","A","U","C","I")
+n_items <- length(unique(items))
+max_rules <- 3^n_items - 2^(n_items+1) + 1
+max_rules
+max_itemset_size <- n_items
+max_itemset_size
+
+### 3. Bayes Classification & Decision Tree (diabetes.csv)
+diabetes <- read.csv("diabetes.csv")
+model_nb <- naiveBayes(Outcome ~ ., data=diabetes)
+pred_nb <- predict(model_nb, diabetes)
+table(pred_nb, diabetes$Outcome)
+
+model_dt <- rpart(Outcome ~ ., data=diabetes, method="class")
+plot(model_dt); text(model_dt)
+
+### 4. Linear & Multiple Regression (diabetes.csv)
+lm1 <- lm(BloodPressure ~ Age, data=diabetes)
+summary(lm1)
+lm2 <- lm(BloodPressure ~ Age + Glucose, data=diabetes)
+summary(lm2)
+
+### 5. Histogram (AirPassengers dataset)
+hist(AirPassengers, breaks=seq(100,700,150),
+     col="lightblue", main="AirPassengers Histogram",
+     xlab="Passengers")
+
+### 6. Multiple Lines in Line Chart (mtcars)
+plot(mtcars$mpg, type="l", col="blue", ylab="Values", xlab="Index")
+lines(mtcars$qsec, col="red")
+legend("topright", legend=c("mpg","qsec"), col=c("blue","red"), lty=1)
+
+### 7. Linear Regression (water dataset)
+data("water")
+plot(water$hardness, water$mortality, main="Mortality vs Hardness")
+model <- lm(mortality ~ hardness, data=water)
+abline(model, col="red")
+predict(model, data.frame(hardness=88))
+
+### 8. Boxplot mpg vs cyl (mtcars)
+boxplot(mpg ~ cyl, data=mtcars,
+        col=c("lightblue","lightgreen","pink"),
+        main="MPG vs Cylinders")
+
+### 9. Tennis Coach Outliers
+scores <- c(15,18,20,22,25,30,35,40,100)
+boxplot(scores, main="Tennis Players Scores", col="orange")
+
+### 10. Diabetes Dataset Visualization
+plot(diabetes$Age, diabetes$BloodPressure,
+     main="Blood Pressure vs Age",
+     xlab="Age", ylab="Blood Pressure", col="blue")
+barplot(diabetes$BloodPressure, names.arg=diabetes$Age,
+        col="green", main="Blood Pressure by Age")
